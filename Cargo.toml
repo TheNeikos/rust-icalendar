@@ -1,0 +1,10 @@
+[package]
+name = "icalendar"
+version = "0.1.0"
+authors = ["Marcel Müller <neikos@neikos.email>"]
+repository = "https://github.com/TheNeikos/rust-icalendar"
+homepage = "https://github.com/TheNeikos/rust-icalendar"
+license = "LGPL-3.0"
+readme = "README.md"
+documentation = "http://neikos.me/rust-icalendar/icalendar"
+description = "An RFC 5545 compatible iCalendar library."
