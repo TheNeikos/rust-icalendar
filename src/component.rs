@@ -1,20 +1,20 @@
 use std::str::FromStr;
 
 /// Tells you that the given string is not a valid component
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct InvalidComponentError(String);
 
 /// Tells you that the given string is not a valid property
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct InvalidPropertyError(String);
 
 /// Tells you that the given string is not a valid parameter
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct InvalidParameterError(String);
 
 /// Taken from the RFC5545
 #[allow(missing_docs, non_camel_case_types)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub enum ComponentType {
     VCALENDAR,
     VEVENT,
@@ -32,31 +32,31 @@ impl FromStr for ComponentType {
 
     fn from_str(s: &str) -> Result<ComponentType, Self::Err> {
         match &s.to_lowercase()[..] {
-            "VCALENDAR" => {
+            "vcalendar" => {
                 Ok(ComponentType::VCALENDAR)
             },
-            "VEVENT" => {
+            "vevent" => {
                 Ok(ComponentType::VEVENT)
             },
-            "VTODO" => {
+            "vtodo" => {
                 Ok(ComponentType::VTODO)
             },
-            "VJOURNAL" => {
+            "vjournal" => {
                 Ok(ComponentType::VJOURNAL)
             },
-            "VFREEBUSY" => {
+            "vfreebusy" => {
                 Ok(ComponentType::VFREEBUSY)
             },
-            "VTIMEZONE" => {
+            "vtimezone" => {
                 Ok(ComponentType::VTIMEZONE)
             },
-            "VALARM" => {
+            "valarm" => {
                 Ok(ComponentType::VALARM)
             },
-            "STANDARD" => {
+            "standard" => {
                 Ok(ComponentType::STANDARD)
             },
-            "DAYLIGHT" => {
+            "daylight" => {
                 Ok(ComponentType::DAYLIGHT)
             },
             unknown => {
@@ -66,9 +66,29 @@ impl FromStr for ComponentType {
     }
 }
 
+#[test]
+fn create_component_type() {
+    let results_expected = vec![
+        ("VCALENDAR",   Ok(ComponentType::VCALENDAR)),
+        ("VEVENT",      Ok(ComponentType::VEVENT)),
+        ("VTODO",       Ok(ComponentType::VTODO)),
+        ("VJOURNAL",    Ok(ComponentType::VJOURNAL)),
+        ("VFREEBUSY",   Ok(ComponentType::VFREEBUSY)),
+        ("VTIMEZONE",   Ok(ComponentType::VTIMEZONE)),
+        ("VALARM",      Ok(ComponentType::VALARM)),
+        ("STANDARD",    Ok(ComponentType::STANDARD)),
+        ("DAYLIGHT",    Ok(ComponentType::DAYLIGHT)),
+        ("dasts",       Err(InvalidComponentError("dasts".into()))),
+    ];
+
+    for (q, r) in results_expected {
+        assert_eq!(ComponentType::from_str(q), r);
+    }
+}
+
 /// Taken from the RFC 5545
 #[allow(missing_docs, non_camel_case_types)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub enum PropertyType {
     CALSCALE,
     METHOD,
@@ -124,151 +144,209 @@ impl FromStr for PropertyType {
 
     fn from_str(s: &str) -> Result<PropertyType, Self::Err> {
         match &s.to_lowercase()[..] {
-            "CALSCALE" => {
+            "calscale" => {
                 Ok(PropertyType::CALSCALE)
             },
-            "METHOD" => {
+            "method" => {
                 Ok(PropertyType::METHOD)
             },
-            "PRODID" => {
+            "prodid" => {
                 Ok(PropertyType::PRODID)
             },
-            "VERSION" => {
+            "version" => {
                 Ok(PropertyType::VERSION)
             },
-            "ATTACH" => {
+            "attach" => {
                 Ok(PropertyType::ATTACH)
             },
-            "CATEGORIES" => {
+            "categories" => {
                 Ok(PropertyType::CATEGORIES)
             },
-            "CLASS" => {
+            "class" => {
                 Ok(PropertyType::CLASS)
             },
-            "COMMENT" => {
+            "comment" => {
                 Ok(PropertyType::COMMENT)
             },
-            "DESCRIPTION" => {
+            "description" => {
                 Ok(PropertyType::DESCRIPTION)
             },
-            "GEO" => {
+            "geo" => {
                 Ok(PropertyType::GEO)
             },
-            "LOCATION" => {
+            "location" => {
                 Ok(PropertyType::LOCATION)
             },
-            "PERCENT_COMPLETE" => {
+            "percent_complete" => {
                 Ok(PropertyType::PERCENT_COMPLETE)
             },
-            "PRIORITY" => {
+            "priority" => {
                 Ok(PropertyType::PRIORITY)
             },
-            "RESOURCES" => {
+            "resources" => {
                 Ok(PropertyType::RESOURCES)
             },
-            "STATUS" => {
+            "status" => {
                 Ok(PropertyType::STATUS)
             },
-            "SUMMARY" => {
+            "summary" => {
                 Ok(PropertyType::SUMMARY)
             },
-            "COMPLETED" => {
+            "completed" => {
                 Ok(PropertyType::COMPLETED)
             },
-            "DTEND" => {
+            "dtend" => {
                 Ok(PropertyType::DTEND)
             },
-            "DUE" => {
+            "due" => {
                 Ok(PropertyType::DUE)
             },
-            "DTSTART" => {
+            "dtstart" => {
                 Ok(PropertyType::DTSTART)
             },
-            "DURATION" => {
+            "duration" => {
                 Ok(PropertyType::DURATION)
             },
-            "FREEBUSY" => {
+            "freebusy" => {
                 Ok(PropertyType::FREEBUSY)
             },
-            "TRANSP" => {
+            "transp" => {
                 Ok(PropertyType::TRANSP)
             },
-            "TZID" => {
+            "tzid" => {
                 Ok(PropertyType::TZID)
             },
-            "TZNAME" => {
+            "tzname" => {
                 Ok(PropertyType::TZNAME)
             },
-            "TZOFFSETFROM" => {
+            "tzoffsetfrom" => {
                 Ok(PropertyType::TZOFFSETFROM)
             },
-            "TZOFFSETTO" => {
+            "tzoffsetto" => {
                 Ok(PropertyType::TZOFFSETTO)
             },
-            "TZURL" => {
+            "tzurl" => {
                 Ok(PropertyType::TZURL)
             },
-            "ATTENDEE" => {
+            "attendee" => {
                 Ok(PropertyType::ATTENDEE)
             },
-            "CONTACT" => {
+            "contact" => {
                 Ok(PropertyType::CONTACT)
             },
-            "ORGANIZER" => {
+            "organizer" => {
                 Ok(PropertyType::ORGANIZER)
             },
-            "RECURRENCE_ID" => {
+            "recurrence_id" => {
                 Ok(PropertyType::RECURRENCE_ID)
             },
-            "RELATED_TO" => {
+            "related_to" => {
                 Ok(PropertyType::RELATED_TO)
             },
-            "URL" => {
+            "url" => {
                 Ok(PropertyType::URL)
             },
-            "UID" => {
+            "uid" => {
                 Ok(PropertyType::UID)
             },
-            "EXDATE" => {
+            "exdate" => {
                 Ok(PropertyType::EXDATE)
             },
-            "EXRULE" => {
+            "exrule" => {
                 Ok(PropertyType::EXRULE)
             },
-            "RDATE" => {
+            "rdate" => {
                 Ok(PropertyType::RDATE)
             },
-            "RRULE" => {
+            "rrule" => {
                 Ok(PropertyType::RRULE)
             },
-            "ACTION" => {
+            "action" => {
                 Ok(PropertyType::ACTION)
             },
-            "REPEAT" => {
+            "repeat" => {
                 Ok(PropertyType::REPEAT)
             },
-            "TRIGGER" => {
+            "trigger" => {
                 Ok(PropertyType::TRIGGER)
             },
-            "CREATED" => {
+            "created" => {
                 Ok(PropertyType::CREATED)
             },
-            "DTSTAMP" => {
+            "dtstamp" => {
                 Ok(PropertyType::DTSTAMP)
             },
-            "LAST_MODIFIED" => {
+            "last_modified" => {
                 Ok(PropertyType::LAST_MODIFIED)
             },
-            "SEQUENCE" => {
+            "sequence" => {
                 Ok(PropertyType::SEQUENCE)
             },
-            "REQUEST_STATUS" => {
+            "request_status" => {
                 Ok(PropertyType::REQUEST_STATUS)
             },
             unknown => {
                 Err(InvalidPropertyError(unknown.to_owned()))
             }
         }
+    }
+}
+
+#[test]
+fn create_property_type() {
+    let results_expected = vec![
+        ("CALSCALE", Ok(PropertyType::CALSCALE)),
+        ("METHOD", Ok(PropertyType::METHOD)),
+        ("PRODID", Ok(PropertyType::PRODID)),
+        ("VERSION", Ok(PropertyType::VERSION)),
+        ("ATTACH", Ok(PropertyType::ATTACH)),
+        ("CATEGORIES", Ok(PropertyType::CATEGORIES)),
+        ("CLASS", Ok(PropertyType::CLASS)),
+        ("COMMENT", Ok(PropertyType::COMMENT)),
+        ("DESCRIPTION", Ok(PropertyType::DESCRIPTION)),
+        ("GEO", Ok(PropertyType::GEO)),
+        ("LOCATION", Ok(PropertyType::LOCATION)),
+        ("PERCENT_COMPLETE", Ok(PropertyType::PERCENT_COMPLETE)),
+        ("PRIORITY", Ok(PropertyType::PRIORITY)),
+        ("RESOURCES", Ok(PropertyType::RESOURCES)),
+        ("STATUS", Ok(PropertyType::STATUS)),
+        ("SUMMARY", Ok(PropertyType::SUMMARY)),
+        ("COMPLETED", Ok(PropertyType::COMPLETED)),
+        ("DTEND", Ok(PropertyType::DTEND)),
+        ("DUE", Ok(PropertyType::DUE)),
+        ("DTSTART", Ok(PropertyType::DTSTART)),
+        ("DURATION", Ok(PropertyType::DURATION)),
+        ("FREEBUSY", Ok(PropertyType::FREEBUSY)),
+        ("TRANSP", Ok(PropertyType::TRANSP)),
+        ("TZID", Ok(PropertyType::TZID)),
+        ("TZNAME", Ok(PropertyType::TZNAME)),
+        ("TZOFFSETFROM", Ok(PropertyType::TZOFFSETFROM)),
+        ("TZOFFSETTO", Ok(PropertyType::TZOFFSETTO)),
+        ("TZURL", Ok(PropertyType::TZURL)),
+        ("ATTENDEE", Ok(PropertyType::ATTENDEE)),
+        ("CONTACT", Ok(PropertyType::CONTACT)),
+        ("ORGANIZER", Ok(PropertyType::ORGANIZER)),
+        ("RECURRENCE_ID", Ok(PropertyType::RECURRENCE_ID)),
+        ("RELATED_TO", Ok(PropertyType::RELATED_TO)),
+        ("URL", Ok(PropertyType::URL)),
+        ("UID", Ok(PropertyType::UID)),
+        ("EXDATE", Ok(PropertyType::EXDATE)),
+        ("EXRULE", Ok(PropertyType::EXRULE)),
+        ("RDATE", Ok(PropertyType::RDATE)),
+        ("RRULE", Ok(PropertyType::RRULE)),
+        ("ACTION", Ok(PropertyType::ACTION)),
+        ("REPEAT", Ok(PropertyType::REPEAT)),
+        ("TRIGGER", Ok(PropertyType::TRIGGER)),
+        ("CREATED", Ok(PropertyType::CREATED)),
+        ("DTSTAMP", Ok(PropertyType::DTSTAMP)),
+        ("LAST_MODIFIED", Ok(PropertyType::LAST_MODIFIED)),
+        ("SEQUENCE", Ok(PropertyType::SEQUENCE)),
+        ("REQUEST_STATUS", Ok(PropertyType::REQUEST_STATUS)),
+        ("asdfasdf", Err(InvalidPropertyError("asdfasdf".into()))),
+        ];
+
+    for (q, r) in results_expected {
+        assert_eq!(PropertyType::from_str(q), r);
     }
 }
 
@@ -304,70 +382,101 @@ impl FromStr for ParameterType {
 
     fn from_str(s: &str) -> Result<ParameterType, Self::Err> {
         match &s.to_lowercase()[..] {
-            "ALTREP" => {
+            "altrep" => {
                 Ok(ParameterType::ALTREP)
             },
-            "CN" => {
+            "cn" => {
                 Ok(ParameterType::CN)
             },
-            "CUTYPE" => {
+            "cutype" => {
                 Ok(ParameterType::CUTYPE)
             },
-            "DELEGATED_FROM" => {
+            "delegated_from" => {
                 Ok(ParameterType::DELEGATED_FROM)
             },
-            "DELEGATED_TO" => {
+            "delegated_to" => {
                 Ok(ParameterType::DELEGATED_TO)
             },
-            "DIR" => {
+            "dir" => {
                 Ok(ParameterType::DIR)
             },
-            "ENCODING" => {
+            "encoding" => {
                 Ok(ParameterType::ENCODING)
             },
-            "FMTTYPE" => {
+            "fmttype" => {
                 Ok(ParameterType::FMTTYPE)
             },
-            "FBTYPE" => {
+            "fbtype" => {
                 Ok(ParameterType::FBTYPE)
             },
-            "LANGUAGE" => {
+            "language" => {
                 Ok(ParameterType::LANGUAGE)
             },
-            "MEMBER" => {
+            "member" => {
                 Ok(ParameterType::MEMBER)
             },
-            "PARTSTAT" => {
+            "partstat" => {
                 Ok(ParameterType::PARTSTAT)
             },
-            "RANGE" => {
+            "range" => {
                 Ok(ParameterType::RANGE)
             },
-            "RELATED" => {
+            "related" => {
                 Ok(ParameterType::RELATED)
             },
-            "RELTYPE" => {
+            "reltype" => {
                 Ok(ParameterType::RELTYPE)
             },
-            "ROLE" => {
+            "role" => {
                 Ok(ParameterType::ROLE)
             },
-            "RSVP" => {
+            "rsvp" => {
                 Ok(ParameterType::RSVP)
             },
-            "SENT_BY" => {
+            "sent_by" => {
                 Ok(ParameterType::SENT_BY)
             },
-            "TZID" => {
+            "tzid" => {
                 Ok(ParameterType::TZID)
             },
-            "VALUE" => {
+            "value" => {
                 Ok(ParameterType::VALUE)
             },
             unknown => {
                 Err(InvalidParameterError(unknown.to_owned()))
             }
         }
+    }
+}
+
+#[test]
+fn create_parameter_type() {
+    let results_expected = vec![
+        ("ALTREP", Ok(ParameterType::ALTREP)),
+        ("CN", Ok(ParameterType::CN)),
+        ("CUTYPE", Ok(ParameterType::CUTYPE)),
+        ("DELEGATED_FROM", Ok(ParameterType::DELEGATED_FROM)),
+        ("DELEGATED_TO", Ok(ParameterType::DELEGATED_TO)),
+        ("DIR", Ok(ParameterType::DIR)),
+        ("ENCODING", Ok(ParameterType::ENCODING)),
+        ("FMTTYPE", Ok(ParameterType::FMTTYPE)),
+        ("FBTYPE", Ok(ParameterType::FBTYPE)),
+        ("LANGUAGE", Ok(ParameterType::LANGUAGE)),
+        ("MEMBER", Ok(ParameterType::MEMBER)),
+        ("PARTSTAT", Ok(ParameterType::PARTSTAT)),
+        ("RANGE", Ok(ParameterType::RANGE)),
+        ("RELATED", Ok(ParameterType::RELATED)),
+        ("RELTYPE", Ok(ParameterType::RELTYPE)),
+        ("ROLE", Ok(ParameterType::ROLE)),
+        ("RSVP", Ok(ParameterType::RSVP)),
+        ("SENT_BY", Ok(ParameterType::SENT_BY)),
+        ("TZID", Ok(ParameterType::TZID)),
+        ("VALUE", Ok(ParameterType::VALUE)),
+        ("asdf", Err(InvalidParameterError("asdf".into()))),
+    ];
+
+    for (q, r) in results_expected {
+        assert_eq!(ParameterType::from_str(q), r);
     }
 }
 
