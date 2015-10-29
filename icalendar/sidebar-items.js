@@ -1,0 +1,1 @@
+initSidebarItems({"mod":[["component","The component itself"]]});
