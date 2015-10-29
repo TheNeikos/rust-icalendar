@@ -484,17 +484,36 @@ fn create_parameter_type() {
 #[derive(Debug)]
 pub struct Property {
     /// The type of the property
-    pub kind: PropertyType,
+    kind: PropertyType,
 
+    /// The list of allowed parameters
     allowed_parameters: Vec<ParameterType>,
+
+    /// The list of required parameters
+    required_parameters: Vec<ParameterType>,
+
+    /// The list of existing parameters
+    parameters: Vec<Parameter>,
 }
 
 /// A fully featured and complete Component with only valid attributes
 #[derive(Debug)]
 pub struct Component {
     /// The type of iCalendar component type we have
-    pub kind: ComponentType,
+    kind: ComponentType,
 
     /// The list of allowed properties
     allowed_properties: Vec<PropertyType>,
+
+    /// The list of required properties
+    required_parameters: Vec<PropertyType>,
+
+    /// The list of existing properties
+    parameters: Vec<Property>,
+
+    /// The list of allowed nested components
+    allowed_components: Vec<ComponentType>,
+
+    /// The list of existing nested components
+    components: Vec<ComponentType>,
 }
