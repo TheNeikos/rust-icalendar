@@ -2,15 +2,15 @@ use std::str::FromStr;
 
 /// Tells you that the given string is not a valid component
 #[derive(Debug, PartialEq)]
-pub struct InvalidComponentError(String);
+pub struct InvalidComponentTypeError(String);
 
 /// Tells you that the given string is not a valid property
 #[derive(Debug, PartialEq)]
-pub struct InvalidPropertyError(String);
+pub struct InvalidPropertyTypeError(String);
 
 /// Tells you that the given string is not a valid parameter
 #[derive(Debug, PartialEq)]
-pub struct InvalidParameterError(String);
+pub struct InvalidParameterTypeError(String);
 
 /// Taken from the RFC5545
 #[allow(missing_docs, non_camel_case_types)]
@@ -28,7 +28,7 @@ pub enum ComponentType {
 }
 
 impl FromStr for ComponentType {
-    type Err = InvalidComponentError;
+    type Err = InvalidComponentTypeError;
 
     fn from_str(s: &str) -> Result<ComponentType, Self::Err> {
         match &s.to_lowercase()[..] {
@@ -60,7 +60,7 @@ impl FromStr for ComponentType {
                 Ok(ComponentType::DAYLIGHT)
             },
             unknown => {
-                Err(InvalidComponentError(unknown.to_owned()))
+                Err(InvalidComponentTypeError(unknown.to_owned()))
             }
         }
     }
@@ -78,7 +78,7 @@ fn create_component_type() {
         ("VALARM",      Ok(ComponentType::VALARM)),
         ("STANDARD",    Ok(ComponentType::STANDARD)),
         ("DAYLIGHT",    Ok(ComponentType::DAYLIGHT)),
-        ("dasts",       Err(InvalidComponentError("dasts".into()))),
+        ("dasts",       Err(InvalidComponentTypeError("dasts".into()))),
     ];
 
     for (q, r) in results_expected {
@@ -140,7 +140,7 @@ pub enum PropertyType {
 }
 
 impl FromStr for PropertyType {
-    type Err = InvalidPropertyError;
+    type Err = InvalidPropertyTypeError;
 
     fn from_str(s: &str) -> Result<PropertyType, Self::Err> {
         match &s.to_lowercase()[..] {
@@ -286,7 +286,7 @@ impl FromStr for PropertyType {
                 Ok(PropertyType::REQUEST_STATUS)
             },
             unknown => {
-                Err(InvalidPropertyError(unknown.to_owned()))
+                Err(InvalidPropertyTypeError(unknown.to_owned()))
             }
         }
     }
@@ -342,7 +342,7 @@ fn create_property_type() {
         ("LAST_MODIFIED", Ok(PropertyType::LAST_MODIFIED)),
         ("SEQUENCE", Ok(PropertyType::SEQUENCE)),
         ("REQUEST_STATUS", Ok(PropertyType::REQUEST_STATUS)),
-        ("asdfasdf", Err(InvalidPropertyError("asdfasdf".into()))),
+        ("asdfasdf", Err(InvalidPropertyTypeError("asdfasdf".into()))),
         ];
 
     for (q, r) in results_expected {
@@ -378,7 +378,7 @@ pub enum ParameterType {
 }
 
 impl FromStr for ParameterType {
-    type Err = InvalidParameterError;
+    type Err = InvalidParameterTypeError;
 
     fn from_str(s: &str) -> Result<ParameterType, Self::Err> {
         match &s.to_lowercase()[..] {
@@ -443,7 +443,7 @@ impl FromStr for ParameterType {
                 Ok(ParameterType::VALUE)
             },
             unknown => {
-                Err(InvalidParameterError(unknown.to_owned()))
+                Err(InvalidParameterTypeError(unknown.to_owned()))
             }
         }
     }
@@ -472,7 +472,7 @@ fn create_parameter_type() {
         ("SENT_BY", Ok(ParameterType::SENT_BY)),
         ("TZID", Ok(ParameterType::TZID)),
         ("VALUE", Ok(ParameterType::VALUE)),
-        ("asdf", Err(InvalidParameterError("asdf".into()))),
+        ("asdf", Err(InvalidParameterTypeError("asdf".into()))),
     ];
 
     for (q, r) in results_expected {
@@ -480,21 +480,133 @@ fn create_parameter_type() {
     }
 }
 
+/// A valid parameter for a given Property
+#[derive(Debug, Clone)]
+pub struct Parameter {
+    kind: ParameterType,
+    value: String
+}
+
+impl Parameter  {
+    /// Allows one to check if the parameter is of a given kind
+    pub fn is_a(&self, t: ParameterType) -> bool {
+        self.kind == t
+    }
+
+    /// Allows one to check if the parameter is of a given kind
+    pub fn get_kind(&self) -> ParameterType {
+        self.kind
+    }
+
+    /// Allows you to get a reference to the value
+    pub fn get_value(&self) -> &String {
+        &self.value
+    }
+}
+
 /// A valid property for it's parent Component
 #[derive(Debug)]
 pub struct Property {
     /// The type of the property
-    pub kind: PropertyType,
+    kind: PropertyType,
 
+    /// The list of allowed parameters
     allowed_parameters: Vec<ParameterType>,
+
+    /// The list of required parameters
+    required_parameters: Vec<ParameterType>,
+
+    /// The list of existing parameters
+    parameters: Vec<Parameter>,
+}
+
+/// Tells you the kind of error you got when creating a parameter
+#[derive(Debug, Copy, Clone, PartialEq)]
+pub enum InvalidParameterKind {
+    /// An attribute was missing
+    RequiredAttributeMissing(&'static str),
+    /// The parameter was ill-formatted
+    InvalidFormat(&'static str),
+}
+
+/// Tells you that the given string is not a valid component
+#[derive(Debug, PartialEq, Copy, Clone)]
+pub struct InvalidParameterError {
+    kind: InvalidParameterKind
+}
+
+impl InvalidParameterError {
+    fn new(k: InvalidParameterKind) -> InvalidParameterError {
+        InvalidParameterError { kind: k }
+    }
+}
+
+impl FromStr for Parameter {
+    type Err = InvalidParameterError;
+
+    fn from_str(s: &str) -> Result<Parameter, Self::Err> {
+        use self::InvalidParameterKind::*;
+        if s.contains('\n') {
+            return Err(InvalidParameterError::new(InvalidFormat("Found a Newline")));
+        }
+        if let None = s.find('=') {
+            return Err(InvalidParameterError::new(RequiredAttributeMissing("Missing equal sign")));
+        }
+        let mut tokens = s.splitn(2, '=');
+
+        match &tokens.next().unwrap().to_lowercase()[..] {
+            "altrep" => {
+                let value = tokens.next().unwrap();
+
+                if value.len() < 3 {
+                    return Err(InvalidParameterError::new(InvalidFormat(
+                        "Wrong format for: ALTREP, length should be at least 3"
+                    )));
+                }
+
+                if !(value.starts_with('"') || value.ends_with('"')){
+                    return Err(InvalidParameterError::new(InvalidFormat(
+                       "Wrong format for: ALTREP, value has to be wrapped in double quotes"
+                    )));
+                }
+
+                Ok(Parameter {
+                    kind: ParameterType::ALTREP,
+                    value: value[1..value.len()-1].to_owned()
+                })
+            },
+            _ => { unimplemented!() }
+        }
+    }
+}
+
+#[test]
+fn test_parameter_from_str() {
+    let faux_param = Parameter::from_str("dasda=oops\n");
+    assert!(faux_param.is_err());
+
+    let faux_param = Parameter::from_str("ALTREP:\"nope\"");
+    assert!(faux_param.is_err());
 }
 
 /// A fully featured and complete Component with only valid attributes
 #[derive(Debug)]
 pub struct Component {
     /// The type of iCalendar component type we have
-    pub kind: ComponentType,
+    kind: ComponentType,
 
     /// The list of allowed properties
     allowed_properties: Vec<PropertyType>,
+
+    /// The list of required properties
+    required_parameters: Vec<PropertyType>,
+
+    /// The list of existing properties
+    parameters: Vec<Property>,
+
+    /// The list of allowed nested components
+    allowed_components: Vec<ComponentType>,
+
+    /// The list of existing nested components
+    components: Vec<ComponentType>,
 }
